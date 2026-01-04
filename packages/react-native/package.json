@@ -8,7 +8,7 @@
     "test": "jest"
   },
   "keywords": ["aspscript", "react-native", "mobile", "ios", "android"],
-  "author": "Apex Software",
+  "author": "Adel Petrov",
   "license": "MIT",
   "dependencies": {
     "@aspscript/core": "workspace:*",

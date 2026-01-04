@@ -8,7 +8,7 @@
     "dev": "rollup -c -w"
   },
   "keywords": ["aspscript", "vite", "plugin", "build"],
-  "author": "Apex Software",
+  "author": "Adel Petrov",
   "license": "MIT",
   "dependencies": {
     "@aspscript/compiler": "workspace:*"

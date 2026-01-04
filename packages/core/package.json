@@ -11,7 +11,7 @@
     "dev": "rollup -c -w"
   },
   "keywords": ["aspscript", "reactive", "framework"],
-  "author": "Apex Software",
+  "author": "Adel Petrov",
   "license": "MIT",
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^15.3.0",

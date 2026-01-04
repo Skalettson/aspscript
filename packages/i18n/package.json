@@ -8,7 +8,7 @@
     "test": "jest"
   },
   "keywords": ["aspscript", "i18n", "internationalization", "localization", "rtl"],
-  "author": "Apex Software",
+  "author": "Adel Petrov",
   "license": "MIT",
   "dependencies": {
     "@aspscript/core": "workspace:*"

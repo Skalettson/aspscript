@@ -13,7 +13,7 @@
     "dev": "rollup -c -w"
   },
   "keywords": ["aspscript", "compiler", "build"],
-  "author": "Apex Software",
+  "author": "Adel Petrov",
   "license": "MIT",
   "dependencies": {
     "acorn": "^8.12.1",

@@ -8,7 +8,7 @@
     "test": "jest"
   },
   "keywords": ["aspscript", "universal", "cross-platform", "components"],
-  "author": "Apex Software",
+  "author": "Adel Petrov",
   "license": "MIT",
   "dependencies": {
     "@aspscript/core": "workspace:*",

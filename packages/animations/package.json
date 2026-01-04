@@ -5,7 +5,7 @@
   "main": "index.js",
   "type": "module",
   "keywords": ["aspscript", "animations", "transitions"],
-  "author": "Apex Software",
+  "author": "Adel Petrov",
   "license": "MIT"
 }
 

@@ -5,7 +5,7 @@
   "main": "index.js",
   "type": "module",
   "keywords": ["aspscript", "accessibility", "wcag", "a11y"],
-  "author": "Apex Software",
+  "author": "Adel Petrov",
   "license": "MIT"
 }
 

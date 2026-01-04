@@ -9,7 +9,7 @@
     "dev": "tsc --watch"
   },
   "keywords": ["aspscript", "typescript", "types"],
-  "author": "Apex Software",
+  "author": "Adel Petrov",
   "license": "MIT",
   "dependencies": {
     "@aspscript/core": "workspace:*"
