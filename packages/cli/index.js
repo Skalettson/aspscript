@@ -1,15 +1,20 @@
 #!/usr/bin/env node
 
 /**
- * AspScript CLI v1.1.0 - Enterprise Ready
+ * AspScript CLI v1.2.0 - Enterprise Ready
  * Полноценная командная строка для разработки AspScript приложений
  */
 
-const fs = require('fs').promises
-const path = require('path')
-const { execSync, spawn } = require('child_process')
-const readline = require('readline')
-const os = require('os')
+import { promises as fs } from 'fs'
+import path from 'path'
+import { execSync, spawn } from 'child_process'
+import readline from 'readline'
+import os from 'os'
+import { fileURLToPath } from 'url'
+import { dirname } from 'path'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
 
 class AspScriptCLI {
   constructor() {
@@ -845,9 +850,9 @@ src/
 }
 
 // Запуск CLI если файл запущен напрямую
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
   const cli = new AspScriptCLI()
   cli.run().catch(console.error)
 }
 
-module.exports = AspScriptCLI
+export default AspScriptCLI

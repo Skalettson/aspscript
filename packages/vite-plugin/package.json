@@ -1,23 +1,32 @@
 {
   "name": "@aspscript/vite-plugin",
-  "version": "0.6.0",
-  "description": "Vite plugin for AspScript",
+  "version": "1.3.0",
+  "description": "Vite plugin for AspScript framework",
   "main": "index.js",
-  "scripts": {
-    "build": "rollup -c",
-    "dev": "rollup -c -w"
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./index.js"
+    }
   },
-  "keywords": ["aspscript", "vite", "plugin", "build"],
+  "scripts": {
+    "build": "echo 'No build needed'",
+    "test": "node --test"
+  },
+  "keywords": [
+    "aspscript",
+    "vite",
+    "plugin"
+  ],
   "author": "Adel Petrov",
   "license": "MIT",
   "dependencies": {
-    "@aspscript/compiler": "workspace:*"
-  },
-  "devDependencies": {
-    "vite": "^5.4.8",
-    "rollup": "^4.24.0"
+    "@aspscript/compiler": "file:../compiler"
   },
   "peerDependencies": {
-    "vite": ">=4.0.0"
+    "vite": "^4.0.0 || ^5.0.0"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0"
   }
 }

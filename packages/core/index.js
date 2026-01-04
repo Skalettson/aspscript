@@ -1047,6 +1047,26 @@ function serializeElement(element) {
 }
 
 /**
+ * Привязывает реактивность к DOM элементу
+ * @param {Object} instance - экземпляр компонента
+ * @param {HTMLElement} container - DOM контейнер
+ */
+function bindReactivity(instance, container) {
+  // Простая привязка реактивности
+  // В реальной реализации здесь будет полноценная система привязки событий
+  container.setAttribute('data-hydrated', 'true')
+  
+  // Привязываем обработчики событий
+  const buttons = container.querySelectorAll('[data-click]')
+  buttons.forEach(button => {
+    const handler = button.getAttribute('data-click')
+    if (handler && instance[handler]) {
+      button.addEventListener('click', instance[handler].bind(instance))
+    }
+  })
+}
+
+/**
  * Гидратация компонента на клиенте
  * @param {Function} component - AspScript компонент
  * @param {HTMLElement} container - DOM контейнер

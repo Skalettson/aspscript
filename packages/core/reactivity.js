@@ -16,50 +16,103 @@ const targetMap = new WeakMap()
  * @returns {Proxy} реактивный объект
  */
 export function $state(initialValue) {
-  const proxy = new Proxy({ value: initialValue }, {
-    get(target, key) {
-      if (key === 'value') {
-        // Отслеживаем чтение в текущем эффекте
-        if (currentEffect) {
-          let depsMap = targetMap.get(target)
-          if (!depsMap) {
-            depsMap = new Map()
-            targetMap.set(target, depsMap)
+  // Для примитивов и объектов - разные подходы
+  const isPrimitive = initialValue !== Object(initialValue)
+  
+  if (isPrimitive) {
+    // Для примитивов создаем объект-обертку с кастомным valueOf/toString
+    const state = { 
+      _value: initialValue,
+      _deps: new Set()
+    }
+    
+    const proxy = new Proxy(state, {
+      get(target, key) {
+        // Поддержка чтения как объекта
+        if (key === 'value' || key === Symbol.toPrimitive || key === 'valueOf' || key === 'toString') {
+          // Отслеживаем зависимость
+          track(target, 'value')
+          if (key === 'valueOf' || key === Symbol.toPrimitive) {
+            return () => target._value
           }
-
-          let dep = depsMap.get(key)
-          if (!dep) {
-            dep = new Set()
-            depsMap.set(key, dep)
+          if (key === 'toString') {
+            return () => String(target._value)
           }
-
-          dep.add(currentEffect)
+          return target._value
         }
         return target[key]
-      }
-      return target[key]
-    },
-
-    set(target, key, value) {
-      if (key === 'value') {
-        target[key] = value
-
-        // Запускаем эффекты при изменении
-        const depsMap = targetMap.get(target)
-        if (depsMap) {
-          const dep = depsMap.get(key)
-          if (dep) {
-            dep.forEach(effect => effect())
+      },
+      
+      set(target, key, value) {
+        if (key === 'value' || key === '_value') {
+          const oldValue = target._value
+          if (oldValue !== value) {
+            target._value = value
+            // Триггерим эффекты
+            trigger(target, 'value')
           }
+          return true
         }
-      } else {
         target[key] = value
+        return true
       }
-      return true
-    }
-  })
+    })
+    
+    return proxy
+  } else {
+    // Для объектов и массивов - полноценный Proxy
+    return new Proxy(initialValue, {
+      get(target, key) {
+        track(target, key)
+        return target[key]
+      },
+      
+      set(target, key, value) {
+        const oldValue = target[key]
+        if (oldValue !== value) {
+          target[key] = value
+          trigger(target, key)
+        }
+        return true
+      }
+    })
+  }
+}
 
-  return proxy
+/**
+ * Отслеживает зависимость
+ */
+function track(target, key) {
+  if (!currentEffect) return
+  
+  let depsMap = targetMap.get(target)
+  if (!depsMap) {
+    depsMap = new Map()
+    targetMap.set(target, depsMap)
+  }
+  
+  let dep = depsMap.get(key)
+  if (!dep) {
+    dep = new Set()
+    depsMap.set(key, dep)
+  }
+  
+  dep.add(currentEffect)
+}
+
+/**
+ * Триггерит эффекты
+ */
+function trigger(target, key) {
+  const depsMap = targetMap.get(target)
+  if (!depsMap) return
+  
+  const dep = depsMap.get(key)
+  if (dep) {
+    // Копируем Set чтобы избежать бесконечного цикла
+    const effects = [...dep]
+    effects.forEach(effect => effect())
+  }
 }
 
 /**

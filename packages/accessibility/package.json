@@ -1,11 +1,15 @@
 {
-  "name": "@aspscript/accessibility",
-  "version": "1.2.0",
+  "name": "@skaletunorg/accessibility",
+  "version": "1.3.0",
   "description": "AspScript Accessibility (WCAG 2.1 AA) Utilities",
   "main": "index.js",
   "type": "module",
-  "keywords": ["aspscript", "accessibility", "wcag", "a11y"],
+  "keywords": [
+    "aspscript",
+    "accessibility",
+    "wcag",
+    "a11y"
+  ],
   "author": "Adel Petrov",
   "license": "MIT"
 }
-

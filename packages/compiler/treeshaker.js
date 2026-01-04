@@ -1,303 +1,220 @@
 /**
- * AspScript Advanced Tree Shaking
- * Продвинутый tree-shaking для оптимизации бандла
+ * AspScript Tree Shaker
+ * Удаление неиспользуемого кода
  */
-
-const acorn = require('acorn')
-const astring = require('astring')
 
 /**
- * Анализирует использование в коде
- * @param {string} code - исходный код
- * @returns {Object} анализ использования
+ * Tree Shaker для AspScript
  */
-function analyzeUsage(code) {
-  const usage = {
-    reactive: new Set(),
-    components: new Set(),
-    animations: new Set(),
-    ui: new Set(),
-    ssr: new Set(),
-    lazy: new Set(),
-    imports: new Map(),
-    exports: new Set()
+export class TreeShaker {
+  constructor(options = {}) {
+    this.aggressive = options.aggressive || false
+    this.verbose = options.verbose || false
   }
 
-  try {
-    const ast = acorn.parse(code, {
-      ecmaVersion: 2022,
-      sourceType: 'module',
-      allowImportExportEverywhere: true
+  /**
+   * Удаляет неиспользуемый код
+   * @param {string} code - исходный код
+   * @param {Object} options - опции
+   * @returns {string} оптимизированный код
+   */
+  shake(code, options = {}) {
+    let optimized = code
+
+    // Удаляем неиспользуемые импорты
+    optimized = this.removeUnusedImports(optimized)
+
+    // Удаляем неиспользуемые функции
+    if (this.aggressive) {
+      optimized = this.removeUnusedFunctions(optimized)
+    }
+
+    // Удаляем комментарии
+    if (options.removeComments !== false) {
+      optimized = this.removeComments(optimized)
+    }
+
+    // Удаляем пустые строки
+    if (options.removeEmptyLines !== false) {
+      optimized = this.removeEmptyLines(optimized)
+    }
+
+    // Минификация пробелов
+    if (options.minify) {
+      optimized = this.minifyWhitespace(optimized)
+    }
+
+    if (this.verbose) {
+      const originalSize = Buffer.byteLength(code, 'utf-8')
+      const optimizedSize = Buffer.byteLength(optimized, 'utf-8')
+      const reduction = ((1 - optimizedSize / originalSize) * 100).toFixed(2)
+      console.log(`Tree shaking: ${originalSize} → ${optimizedSize} bytes (${reduction}% reduction)`)
+    }
+
+    return optimized
+  }
+
+  /**
+   * Удаляет неиспользуемые импорты
+   */
+  removeUnusedImports(code) {
+    const lines = code.split('\n')
+    const imports = []
+    const usedIdentifiers = new Set()
+
+    // Собираем все импорты
+    lines.forEach((line, index) => {
+      const importMatch = line.match(/import\s+(?:{([^}]+)}|(\w+))\s+from\s+['"]([^'"]+)['"]/)
+      if (importMatch) {
+        const namedImports = importMatch[1]
+        const defaultImport = importMatch[2]
+        
+        if (namedImports) {
+          const names = namedImports.split(',').map(n => n.trim())
+          imports.push({ line: index, names, type: 'named' })
+        } else if (defaultImport) {
+          imports.push({ line: index, names: [defaultImport], type: 'default' })
+        }
+      }
     })
 
-    traverseAST(ast, usage)
-  } catch (error) {
-    // Если парсинг не удался, возвращаем пустой анализ
-    console.warn('Tree shaking analysis failed:', error.message)
-  }
+    // Находим используемые идентификаторы
+    const codeWithoutImports = lines
+      .filter((_, i) => !imports.some(imp => imp.line === i))
+      .join('\n')
 
-  return usage
-}
-
-/**
- * Рекурсивно обходит AST для анализа использования
- * @param {Object} node - узел AST
- * @param {Object} usage - объект анализа
- */
-function traverseAST(node, usage) {
-  if (!node || typeof node !== 'object') return
-
-  // Анализ импортов
-  if (node.type === 'ImportDeclaration') {
-    const source = node.source.value
-
-    if (source === '@aspscript/core') {
-      node.specifiers.forEach(spec => {
-        const name = spec.imported?.name || spec.local?.name
-        if (name) {
-          usage.imports.set(name, 'core')
-          categorizeImport(name, usage)
+    imports.forEach(imp => {
+      imp.names.forEach(name => {
+        const regex = new RegExp(`\\b${name}\\b`, 'g')
+        if (regex.test(codeWithoutImports)) {
+          usedIdentifiers.add(name)
         }
       })
-    } else if (source === '@aspscript/ui') {
-      node.specifiers.forEach(spec => {
-        const name = spec.imported?.name || spec.local?.name
-        if (name) {
-          usage.imports.set(name, 'ui')
-          usage.ui.add(name)
-        }
+    })
+
+    // Удаляем неиспользуемые импорты
+    return lines
+      .filter((line, index) => {
+        const importData = imports.find(imp => imp.line === index)
+        if (!importData) return true
+
+        // Проверяем, используется ли хотя бы один импорт
+        return importData.names.some(name => usedIdentifiers.has(name))
       })
-    }
+      .join('\n')
   }
 
-  // Анализ использования переменных
-  if (node.type === 'Identifier') {
-    const name = node.name
+  /**
+   * Удаляет неиспользуемые функции
+   */
+  removeUnusedFunctions(code) {
+    // Простая реализация - в продакшене нужен полноценный AST анализ
+    const functionRegex = /function\s+(\w+)\s*\([^)]*\)\s*{/g
+    const functions = []
+    let match
 
-    // Проверяем, является ли это использованием AspScript API
-    if (usage.imports.has(name)) {
-      const category = usage.imports.get(name)
-      categorizeUsage(name, category, usage)
+    while ((match = functionRegex.exec(code)) !== null) {
+      functions.push(match[1])
     }
-  }
 
-  // Анализ экспортов
-  if (node.type === 'ExportNamedDeclaration' || node.type === 'ExportDefaultDeclaration') {
-    if (node.declaration?.id?.name) {
-      usage.exports.add(node.declaration.id.name)
-    }
-    if (node.declaration?.declarations) {
-      node.declaration.declarations.forEach(decl => {
-        if (decl.id?.name) {
-          usage.exports.add(decl.id.name)
-        }
-      })
-    }
-  }
+    // Проверяем использование каждой функции
+    const usedFunctions = functions.filter(fn => {
+      const regex = new RegExp(`\\b${fn}\\s*\\(`, 'g')
+      const matches = code.match(regex) || []
+      // Функция используется, если вызывается хотя бы 2 раза (объявление + вызов)
+      return matches.length > 1
+    })
 
-  // Рекурсивный обход
-  for (const key in node) {
-    if (node.hasOwnProperty(key)) {
-      const child = node[key]
-      if (Array.isArray(child)) {
-        child.forEach(item => traverseAST(item, usage))
-      } else if (child && typeof child === 'object') {
-        traverseAST(child, usage)
+    // Удаляем неиспользуемые функции
+    let optimized = code
+    functions.forEach(fn => {
+      if (!usedFunctions.includes(fn)) {
+        const fnRegex = new RegExp(`function\\s+${fn}\\s*\\([^)]*\\)\\s*{[^}]*}`, 'g')
+        optimized = optimized.replace(fnRegex, '')
       }
+    })
+
+    return optimized
+  }
+
+  /**
+   * Удаляет комментарии
+   */
+  removeComments(code) {
+    // Удаляем однострочные комментарии
+    let optimized = code.replace(/\/\/.*/g, '')
+    
+    // Удаляем многострочные комментарии
+    optimized = optimized.replace(/\/\*[\s\S]*?\*\//g, '')
+    
+    return optimized
+  }
+
+  /**
+   * Удаляет пустые строки
+   */
+  removeEmptyLines(code) {
+    return code
+      .split('\n')
+      .filter(line => line.trim().length > 0)
+      .join('\n')
+  }
+
+  /**
+   * Минифицирует пробелы
+   */
+  minifyWhitespace(code) {
+    return code
+      .replace(/\s+/g, ' ')
+      .replace(/\s*([{}();,:])\s*/g, '$1')
+      .trim()
+  }
+
+  /**
+   * Анализирует зависимости
+   */
+  analyzeDependencies(code) {
+    const imports = []
+    const exports = []
+
+    // Анализируем импорты
+    const importRegex = /import\s+(?:{([^}]+)}|(\w+))\s+from\s+['"]([^'"]+)['"]/g
+    let match
+
+    while ((match = importRegex.exec(code)) !== null) {
+      imports.push({
+        module: match[3],
+        imports: match[1] ? match[1].split(',').map(s => s.trim()) : [match[2]]
+      })
     }
-  }
-}
 
-/**
- * Категоризует импорт
- * @param {string} name - имя импорта
- * @param {Object} usage - объект анализа
- */
-function categorizeImport(name, usage) {
-  // Реактивность
-  if (['$state', '$computed', '$effect', '$global', 'onMount', 'onDestroy'].includes(name)) {
-    usage.reactive.add(name)
-  }
-
-  // SSR
-  else if (['renderToString', 'renderToHTML', 'hydrate', 'renderToStream', 'renderWithData', 'getSSRData', 'render', 'autoRender', 'isSSR', 'isBrowser'].includes(name)) {
-    usage.ssr.add(name)
-  }
-
-  // Анимации
-  else if (['createTransition', 'createFade', 'createSlide', 'createScale', 'createRotate', 'animateElement', 'animationDirective', 'animations', 'animateGroup', 'listAnimation'].includes(name)) {
-    usage.animations.add(name)
-  }
-
-  // Lazy loading
-  else if (['lazy', 'Suspense', 'preload', 'preloadOnHover', 'preloadOnViewport', 'createChunk', 'ChunkManager'].includes(name)) {
-    usage.lazy.add(name)
-  }
-
-  // Hot reload
-  else if (['registerForHotReload', 'createHotReloadWrapper', 'enableHotReload', 'importWithHotReload', 'isHotReloadSupported'].includes(name)) {
-    usage.hotReload = true
-  }
-}
-
-/**
- * Категоризует использование
- * @param {string} name - имя
- * @param {string} category - категория
- * @param {Object} usage - объект анализа
- */
-function categorizeUsage(name, category, usage) {
-  if (category === 'core') {
-    if (usage.imports.has(name)) {
-      const importCategory = usage.imports.get(name)
-      if (importCategory === 'reactive') usage.reactive.add(name)
-      else if (importCategory === 'ssr') usage.ssr.add(name)
-      else if (importCategory === 'animations') usage.animations.add(name)
-      else if (importCategory === 'lazy') usage.lazy.add(name)
+    // Анализируем экспорты
+    const exportRegex = /export\s+(?:default\s+)?(?:function|const|let|var|class)\s+(\w+)/g
+    while ((match = exportRegex.exec(code)) !== null) {
+      exports.push(match[1])
     }
+
+    return { imports, exports }
   }
 }
 
 /**
- * Создает оптимизированный импорт на основе анализа
- * @param {Object} usage - анализ использования
- * @returns {string} оптимизированный импорт
+ * Создает tree shaker
  */
-function createOptimizedImport(usage) {
-  const imports = []
-
-  // Core импорты
-  const coreImports = []
-  if (usage.reactive.size > 0) {
-    coreImports.push(...Array.from(usage.reactive))
-  }
-  if (usage.ssr.size > 0) {
-    coreImports.push(...Array.from(usage.ssr))
-  }
-  if (usage.animations.size > 0) {
-    coreImports.push(...Array.from(usage.animations))
-  }
-  if (usage.lazy.size > 0) {
-    coreImports.push(...Array.from(usage.lazy))
-  }
-
-  if (coreImports.length > 0) {
-    imports.push(`import { ${coreImports.join(', ')} } from '@aspscript/core'`)
-  }
-
-  // UI импорты
-  if (usage.ui.size > 0) {
-    imports.push(`import { ${Array.from(usage.ui).join(', ')} } from '@aspscript/ui'`)
-  }
-
-  return imports.join('\n')
+export function createTreeShaker(options) {
+  return new TreeShaker(options)
 }
 
 /**
- * Удаляет неиспользуемый код
- * @param {string} code - исходный код
- * @param {Object} usage - анализ использования
- * @returns {string} оптимизированный код
+ * Быстрая функция для tree shaking
  */
-function removeDeadCode(code, usage) {
-  let optimized = code
-
-  // Удаляем неиспользуемые импорты (упрощенная версия)
-  // В продакшене здесь будет более сложная логика
-
-  return optimized
+export function shake(code, options = {}) {
+  const shaker = new TreeShaker(options)
+  return shaker.shake(code, options)
 }
 
-/**
- * Оптимизирует бандл на основе анализа
- * @param {string[]} files - массив файлов
- * @returns {Object} оптимизированный бандл
- */
-function optimizeBundle(files) {
-  const bundleAnalysis = {
-    totalFiles: files.length,
-    usedFeatures: new Set(),
-    unusedFeatures: new Set(),
-    bundleSize: 0,
-    optimizedSize: 0,
-    savings: 0
-  }
-
-  // Анализируем каждый файл
-  files.forEach(file => {
-    try {
-      const usage = analyzeUsage(file)
-      bundleAnalysis.usedFeatures.add(...usage.reactive)
-      bundleAnalysis.usedFeatures.add(...usage.ssr)
-      bundleAnalysis.usedFeatures.add(...usage.animations)
-      bundleAnalysis.usedFeatures.add(...usage.lazy)
-      bundleAnalysis.usedFeatures.add(...usage.ui)
-    } catch (error) {
-      console.warn(`Failed to analyze ${file}:`, error.message)
-    }
-  })
-
-  // Определяем неиспользуемые фичи
-  const allFeatures = new Set([
-    // Reactive
-    '$state', '$computed', '$effect', '$global', 'onMount', 'onDestroy',
-    // SSR
-    'renderToString', 'renderToHTML', 'hydrate', 'renderToStream', 'renderWithData', 'getSSRData', 'render', 'autoRender', 'isSSR', 'isBrowser',
-    // Animations
-    'createTransition', 'createFade', 'createSlide', 'createScale', 'createRotate', 'animateElement', 'animationDirective', 'animations', 'animateGroup', 'listAnimation',
-    // Lazy
-    'lazy', 'Suspense', 'preload', 'preloadOnHover', 'preloadOnViewport', 'createChunk', 'ChunkManager'
-  ])
-
-  for (const feature of allFeatures) {
-    if (!bundleAnalysis.usedFeatures.has(feature)) {
-      bundleAnalysis.unusedFeatures.add(feature)
-    }
-  }
-
-  // Расчет размера (примерные значения)
-  const featureSize = 0.5 // KB на фичу
-  bundleAnalysis.bundleSize = allFeatures.size * featureSize
-  bundleAnalysis.optimizedSize = bundleAnalysis.usedFeatures.size * featureSize
-  bundleAnalysis.savings = bundleAnalysis.bundleSize - bundleAnalysis.optimizedSize
-
-  return bundleAnalysis
-}
-
-/**
- * Создает отчет об оптимизации
- * @param {Object} analysis - анализ бандла
- * @returns {string} отчет
- */
-function createOptimizationReport(analysis) {
-  return `
-📊 AspScript Bundle Optimization Report
-=====================================
-
-📁 Files analyzed: ${analysis.totalFiles}
-🔧 Used features: ${analysis.usedFeatures.size}
-🗑️  Unused features: ${analysis.unusedFeatures.size}
-
-📏 Bundle sizes:
-  • Original: ${analysis.bundleSize.toFixed(1)} KB
-  • Optimized: ${analysis.optimizedSize.toFixed(1)} KB
-  • Savings: ${analysis.savings.toFixed(1)} KB (${((analysis.savings / analysis.bundleSize) * 100).toFixed(1)}%)
-
-🎯 Used features:
-${Array.from(analysis.usedFeatures).map(f => `  ✓ ${f}`).join('\n')}
-
-🚫 Unused features:
-${Array.from(analysis.unusedFeatures).map(f => `  ✗ ${f}`).join('\n')}
-
-💡 Recommendations:
-${analysis.unusedFeatures.size > 0 ? '• Consider removing unused imports to reduce bundle size' : '• Bundle is already optimized!'}
-  `
-}
-
-module.exports = {
-  analyzeUsage,
-  createOptimizedImport,
-  removeDeadCode,
-  optimizeBundle,
-  createOptimizationReport
+export default {
+  TreeShaker,
+  createTreeShaker,
+  shake
 }

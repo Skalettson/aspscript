@@ -3,9 +3,9 @@
  * Интеграция AspScript с Vite
  */
 
-const { compile } = require('@aspscript/compiler')
-const fs = require('fs')
-const path = require('path')
+import { compile } from '@aspscript/compiler'
+import { readFileSync } from 'fs'
+import path from 'path'
 
 /**
  * Создает Vite плагин для AspScript
@@ -78,7 +78,7 @@ function aspscriptPlugin(options = {}) {
       }
 
       // Читаем .aspc файл
-      const code = fs.readFileSync(id, 'utf-8')
+      const code = readFileSync(id, 'utf-8')
 
       // Получаем имя компонента из пути
       const componentName = path.basename(id, '.aspc')
@@ -188,6 +188,5 @@ function createViteConfig(options = {}) {
   }
 }
 
-module.exports = aspscriptPlugin
-module.exports.createViteConfig = createViteConfig
-module.exports.default = aspscriptPlugin
+export default aspscriptPlugin
+export { aspscriptPlugin, createViteConfig }

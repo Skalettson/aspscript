@@ -1,19 +1,24 @@
 {
-  "name": "@aspscript/microfrontends",
-  "version": "0.9.3",
+  "name": "@skaletunorg/microfrontends",
+  "version": "1.3.0",
   "description": "Microfrontends support for AspScript",
   "main": "index.js",
   "scripts": {
     "build": "rollup -c",
     "test": "jest"
   },
-  "keywords": ["aspscript", "microfrontends", "module-federation", "micro-apps"],
+  "keywords": [
+    "aspscript",
+    "microfrontends",
+    "module-federation",
+    "micro-apps"
+  ],
   "author": "Adel Petrov",
   "license": "MIT",
   "dependencies": {
-    "@aspscript/core": "workspace:*",
     "single-spa": "^5.9.0",
-    "import-map-overrides": "^3.1.0"
+    "import-map-overrides": "^3.1.0",
+    "@skaletunorg/core": "file:../core"
   },
   "devDependencies": {
     "rollup": "^3.0.0",

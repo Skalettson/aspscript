@@ -1,12 +1,59 @@
 # AspScript
 
-[![npm version](https://badge.fury.io/js/aspscript.svg)](https://badge.fury.io/js/aspscript)
+[![npm version](https://img.shields.io/npm/v/@aspscript/core?label=@aspscript/core)](https://www.npmjs.com/package/@aspscript/core)
+[![npm version](https://img.shields.io/npm/v/@aspscript/compiler?label=@aspscript/compiler)](https://www.npmjs.com/package/@aspscript/compiler)
+[![npm downloads](https://img.shields.io/npm/dm/@aspscript/core)](https://www.npmjs.com/package/@aspscript/core)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Build Status](https://img.shields.io/github/actions/workflow/status/aspscript/framework/ci.yml)](https://github.com/aspscript/framework/actions)
-[![Coverage](https://img.shields.io/codecov/c/github/aspscript/framework)](https://codecov.io/gh/aspscript/framework)
-[![Latest Release](https://img.shields.io/badge/release-v1.2.0-blue)](https://github.com/skaletun/aspscript/releases/tag/v1.2.0)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/aspscript/framework/ci.yml)](https://github.com/Skalettson/aspscript/actions)
+[![Latest Release](https://img.shields.io/badge/release-v1.3.0-blue)](https://github.com/Skalettson/aspscript/releases/tag/v1.3.0)
 
 > Революционный компилируемый фреймворк, который превращает декларативные описания в высокопроизводительные веб-приложения без лишнего кода.
+
+## 🎉 **AspScript v1.3.0 - "Advanced Compiler"**
+
+### 🔀 **Условные директивы**
+Естественный синтаксис условного рендеринга!
+
+```aspc
+{#if isLoggedIn}
+  <div class="user-panel">
+    <h1>Welcome, {user.name}!</h1>
+  </div>
+{:else if isPending}
+  <div class="loading">Loading...</div>
+{:else}
+  <LoginForm />
+{/if}
+```
+
+### 🔄 **Циклы с оптимизацией**
+Мощные директивы для рендеринга списков!
+
+```aspc
+{#for user in users :key="id"}
+  <UserCard :data="user" />
+{/for}
+
+{#each todos as (todo, index)}
+  <div>{index + 1}. {todo.text}</div>
+{/each}
+```
+
+### 🧩 **Продвинутые компоненты**
+Props с валидацией, события, слоты!
+
+```aspc
+export const props = {
+  title: { type: String, required: true },
+  count: { type: Number, default: 0 }
+}
+
+export const emits = ['click', 'update']
+```
+
+[📖 Подробнее о v1.3.0](changelogs/CHANGELOG-v1.3.0.md) | [📋 v1.2.0](changelogs/CHANGELOG-v1.2.0.md)
+
+---
 
 ## 🎉 **AspScript v1.2.0 - "Framework Maturity"**
 
@@ -279,12 +326,24 @@ $: async fetchData() {
 }
 ```
 
-### 3. Умные директивы
+### 3. Умные директивы (v1.3.0 Enhanced!)
 ```aspc
-<div #if="condition"         <!-- Условный рендеринг -->
-     #for="item in items"    <!-- Циклы с keying -->
-     :class="{...}"          <!-- Реактивные классы -->
-     @event="handler">       <!-- Обработчики событий -->
+<!-- Условный рендеринг -->
+{#if condition}
+  <div>Content</div>
+{:else if other}
+  <div>Other</div>
+{:else}
+  <div>Fallback</div>
+{/if}
+
+<!-- Циклы с keying -->
+{#for item in items :key="id"}
+  <Card :data="item" />
+{/for}
+
+<!-- Реактивные классы и события -->
+<div :class="{active: isActive}" @click="handler">
 ```
 
 ### 4. Scoped стили
@@ -357,6 +416,31 @@ const doubled: Reactive<number> = $computed(() => count.value * 2)
 
 // Автодополнение и проверки типов везде
 ```
+
+### VS Code расширение
+
+✅ **Готово к установке!** Полнофункциональное IDE расширение для AspScript.
+
+**Функции:**
+- 🎨 Syntax highlighting для `.aspc` файлов
+- 📝 20+ code snippets
+- 💡 IntelliSense с auto-completion
+- ✅ Real-time linting и diagnostics
+- 🔍 Go to Definition (F12)
+- 📋 Document Symbols (Outline)
+- 💡 Code Actions & Quick Fixes
+- 🎯 Enhanced hover с примерами
+- 🚀 Commands: Create, Compile, Preview, Format
+
+**Установка:**
+```bash
+# Скоро в VS Code Marketplace
+# Или локально из VSIX:
+cd vscode-extension
+code --install-extension aspscript-1.0.0.vsix
+```
+
+**Документация:** [vscode-extension/README.md](./vscode-extension/README.md)
 
 ---
 

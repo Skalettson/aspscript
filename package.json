@@ -1,18 +1,23 @@
 {
   "name": "aspscript",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "AspScript: Пиши меньше, делай быстрее - революционный фреймворк для веб-разработки",
   "main": "packages/core/index.js",
+  "type": "module",
   "bin": {
-    "aspscript": "./packages/cli/index.js"
+    "aspscript": "packages/cli/index.js",
+    "aspc": "packages/compiler/bin/aspc.js"
   },
   "scripts": {
-    "build": "npm run build --workspaces",
-    "test": "npm run test --workspaces",
-    "dev": "npm run dev --workspaces",
+    "postinstall": "npm run setup",
+    "setup": "node scripts/setup.js",
+    "build": "npm run build --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "dev": "npm run dev --workspaces --if-present",
     "docs": "cd aspscript-site && npm run dev",
     "docs:build": "cd aspscript-site && npm run build",
-    "cli": "node packages/cli/index.js"
+    "cli": "node packages/cli/index.js",
+    "clean": "node scripts/clean.js"
   },
   "workspaces": [
     "packages/core",
@@ -20,7 +25,18 @@
     "packages/cli",
     "packages/testing",
     "packages/vite-plugin",
-    "packages/ecosystem/*"
+    "packages/theme",
+    "packages/animations",
+    "packages/accessibility",
+    "packages/error-boundary",
+    "packages/graphql",
+    "packages/i18n",
+    "packages/microfrontends",
+    "packages/react-native",
+    "packages/typescript",
+    "packages/ui",
+    "packages/universal",
+    "packages/wasm"
   ],
   "keywords": [
     "framework",
@@ -39,9 +55,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Skalettson/aspscript.git"
+    "url": "git+https://github.com/Skalettson/aspscript.git"
   },
   "engines": {
     "node": ">=20.0.0"
+  },
+  "devDependencies": {
+    "rimraf": "^5.0.5"
   }
 }

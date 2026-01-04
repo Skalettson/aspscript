@@ -1,0 +1,385 @@
+---
+/**
+ * Slots Example
+ * Демонстрация системы слотов: default, named, scoped
+ */
+
+let userData = $state({
+  name: 'John Doe',
+  email: 'john@example.com',
+  role: 'Admin',
+  avatar: '👤'
+})
+
+let cardData = $state({
+  title: 'User Profile',
+  status: 'active',
+  lastSeen: '2 hours ago'
+})
+
+function updateStatus(newStatus) {
+  cardData = { ...cardData, status: newStatus }
+}
+---
+
+<template>
+  <div class="slots-demo">
+    <h2>Slots System Demo</h2>
+    
+    <!-- Example 1: Default Slot -->
+    <section>
+      <h3>1. Default Slot</h3>
+      <div class="card">
+        <slot>
+          <p>This is default fallback content</p>
+          <p>It appears when no content is provided</p>
+        </slot>
+      </div>
+    </section>
+    
+    <!-- Example 2: Named Slots -->
+    <section>
+      <h3>2. Named Slots</h3>
+      <div class="card-advanced">
+        <div class="card-header">
+          <slot name="header">
+            <h4>Default Header</h4>
+          </slot>
+        </div>
+        
+        <div class="card-body">
+          <slot>
+            <p>Default body content</p>
+          </slot>
+        </div>
+        
+        <div class="card-actions">
+          <slot name="actions">
+            <button>Default Action</button>
+          </slot>
+        </div>
+        
+        <div class="card-footer">
+          <slot name="footer">
+            <small>Default footer</small>
+          </slot>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Example 3: Scoped Slots -->
+    <section>
+      <h3>3. Scoped Slots (with data)</h3>
+      <div class="user-card">
+        <div class="user-header">
+          <slot name="user-header" :user="userData" :card="cardData">
+            <div class="default-header">
+              <span class="avatar">{userData.avatar}</span>
+              <div>
+                <h4>{userData.name}</h4>
+                <p>{userData.email}</p>
+              </div>
+            </div>
+          </slot>
+        </div>
+        
+        <div class="user-info">
+          <slot name="user-info" :user="userData">
+            <div class="info-grid">
+              <div class="info-item">
+                <label>Role:</label>
+                <span>{userData.role}</span>
+              </div>
+              <div class="info-item">
+                <label>Status:</label>
+                <span class="status-badge">{cardData.status}</span>
+              </div>
+              <div class="info-item">
+                <label>Last Seen:</label>
+                <span>{cardData.lastSeen}</span>
+              </div>
+            </div>
+          </slot>
+        </div>
+        
+        <div class="user-actions">
+          <slot name="user-actions" :update="updateStatus">
+            <button @click="updateStatus('online')">Set Online</button>
+            <button @click="updateStatus('away')">Set Away</button>
+            <button @click="updateStatus('offline')">Set Offline</button>
+          </slot>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Example 4: Multiple Default Slots in different sections -->
+    <section>
+      <h3>4. Conditional Slots</h3>
+      <div class="panel">
+        <div class="panel-header">
+          <h4>{cardData.title}</h4>
+        </div>
+        
+        <div class="panel-content">
+          {#if cardData.status === 'active'}
+            <slot name="active-content">
+              <p class="success">✓ Status is active</p>
+            </slot>
+          {:else}
+            <slot name="inactive-content">
+              <p class="warning">⚠ Status is inactive</p>
+            </slot>
+          {/if}
+        </div>
+      </div>
+    </section>
+    
+    <!-- Example 5: Slots with loops -->
+    <section>
+      <h3>5. Slots in Loops</h3>
+      <div class="items-list">
+        {#for item in [1, 2, 3]}
+          <div class="list-item">
+            <slot name="item" :item="item" :index="item">
+              <div class="default-item">
+                Item #{item}
+              </div>
+            </slot>
+          </div>
+        {/for}
+      </div>
+    </section>
+    
+    <!-- Example 6: Nested Slots -->
+    <section>
+      <h3>6. Nested Slots Structure</h3>
+      <div class="nested-container">
+        <slot name="outer">
+          <div class="outer-content">
+            <h4>Outer Slot</h4>
+            <div class="inner-wrapper">
+              <slot name="inner">
+                <div class="inner-content">
+                  <p>Inner Slot Default Content</p>
+                  <slot>
+                    <p>Deepest Default Slot</p>
+                  </slot>
+                </div>
+              </slot>
+            </div>
+          </div>
+        </slot>
+      </div>
+    </section>
+  </div>
+</template>
+
+<style>
+.slots-demo {
+  padding: 20px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+section {
+  margin: 40px 0;
+}
+
+h3 {
+  color: #333;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #2196f3;
+}
+
+/* Card Styles */
+.card, .card-advanced {
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.card-advanced {
+  border: 1px solid #e0e0e0;
+}
+
+.card-header {
+  padding-bottom: 15px;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 15px;
+}
+
+.card-body {
+  padding: 15px 0;
+}
+
+.card-actions {
+  padding: 15px 0;
+  display: flex;
+  gap: 10px;
+}
+
+.card-footer {
+  padding-top: 15px;
+  border-top: 1px solid #eee;
+  margin-top: 15px;
+  color: #666;
+}
+
+/* User Card */
+.user-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 12px;
+  padding: 25px;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+
+.user-header {
+  margin-bottom: 20px;
+}
+
+.default-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.avatar {
+  font-size: 48px;
+  background: rgba(255,255,255,0.2);
+  padding: 10px;
+  border-radius: 50%;
+}
+
+.user-info {
+  background: rgba(255,255,255,0.1);
+  padding: 15px;
+  border-radius: 8px;
+  margin: 20px 0;
+}
+
+.info-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+}
+
+.status-badge {
+  padding: 3px 10px;
+  background: rgba(255,255,255,0.3);
+  border-radius: 12px;
+  font-size: 12px;
+}
+
+.user-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.user-actions button {
+  flex: 1;
+  min-width: 120px;
+}
+
+/* Panel */
+.panel {
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.panel-header {
+  background: #f5f5f5;
+  padding: 15px 20px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.panel-content {
+  padding: 20px;
+}
+
+.success {
+  color: #4caf50;
+  font-weight: bold;
+}
+
+.warning {
+  color: #ff9800;
+  font-weight: bold;
+}
+
+/* Items List */
+.items-list {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.list-item {
+  flex: 1;
+  min-width: 150px;
+}
+
+.default-item {
+  padding: 20px;
+  background: #2196f3;
+  color: white;
+  text-align: center;
+  border-radius: 8px;
+  font-weight: bold;
+}
+
+/* Nested Container */
+.nested-container {
+  border: 3px dashed #2196f3;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.outer-content {
+  border: 2px dashed #4caf50;
+  padding: 15px;
+  border-radius: 6px;
+}
+
+.inner-wrapper {
+  margin-top: 15px;
+}
+
+.inner-content {
+  border: 1px dashed #ff9800;
+  padding: 15px;
+  border-radius: 4px;
+  background: #fff3e0;
+}
+
+/* Button Styles */
+button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  background: white;
+  color: #667eea;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.user-actions button {
+  background: rgba(255,255,255,0.9);
+  color: #667eea;
+}
+
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+</style>
+

@@ -1,0 +1,119 @@
+---
+/**
+ * Conditional Rendering Example
+ * Демонстрация условного рендеринга с #if, #else if, #else
+ */
+
+let status = $state('pending')
+let isLoggedIn = $state(false)
+let role = $state('user')
+
+function login() {
+  isLoggedIn = true
+  status = 'success'
+}
+
+function logout() {
+  isLoggedIn = false
+  status = 'idle'
+}
+
+function setRole(newRole) {
+  role = newRole
+}
+---
+
+<template>
+  <div class="conditional-example">
+    <h2>Conditional Rendering Demo</h2>
+    
+    <!-- Simple #if -->
+    {#if isLoggedIn}
+      <div class="user-panel">
+        <p>Welcome back!</p>
+        <button @click="logout">Logout</button>
+      </div>
+    {:else}
+      <div class="login-panel">
+        <p>Please login</p>
+        <button @click="login">Login</button>
+      </div>
+    {/if}
+    
+    <!-- Multiple conditions with #else if -->
+    <div class="status">
+      {#if status === 'pending'}
+        <div class="loading">⏳ Loading...</div>
+      {:else if status === 'success'}
+        <div class="success">✅ Success!</div>
+      {:else if status === 'error'}
+        <div class="error">❌ Error occurred</div>
+      {:else}
+        <div class="idle">💤 Idle</div>
+      {/if}
+    </div>
+    
+    <!-- Nested conditions -->
+    {#if isLoggedIn}
+      <div class="role-panel">
+        <h3>Role Access</h3>
+        
+        {#if role === 'admin'}
+          <div class="admin-panel">
+            <p>🔑 Admin Access</p>
+            <button>Manage Users</button>
+            <button>View Analytics</button>
+            <button @click="setRole('user')">Switch to User</button>
+          </div>
+        {:else if role === 'moderator'}
+          <div class="moderator-panel">
+            <p>🛡️ Moderator Access</p>
+            <button>Moderate Content</button>
+            <button @click="setRole('admin')">Switch to Admin</button>
+          </div>
+        {:else}
+          <div class="user-panel">
+            <p>👤 User Access</p>
+            <button>View Profile</button>
+            <button @click="setRole('moderator')">Become Moderator</button>
+          </div>
+        {/if}
+      </div>
+    {/if}
+  </div>
+</template>
+
+<style>
+.conditional-example {
+  padding: 20px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.user-panel, .login-panel, .status, .role-panel {
+  margin: 15px 0;
+  padding: 15px;
+  border-radius: 8px;
+  background: #f5f5f5;
+}
+
+.loading { color: #ff9800; }
+.success { color: #4caf50; }
+.error { color: #f44336; }
+.idle { color: #9e9e9e; }
+
+button {
+  margin: 5px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  background: #2196f3;
+  color: white;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #1976d2;
+}
+</style>
+

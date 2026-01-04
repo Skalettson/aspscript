@@ -1,12 +1,59 @@
 # AspScript
 
-[![npm version](https://badge.fury.io/js/aspscript.svg)](https://badge.fury.io/js/aspscript)
+[![npm version](https://img.shields.io/npm/v/@aspscript/core?label=@aspscript/core)](https://www.npmjs.com/package/@aspscript/core)
+[![npm version](https://img.shields.io/npm/v/@aspscript/compiler?label=@aspscript/compiler)](https://www.npmjs.com/package/@aspscript/compiler)
+[![npm downloads](https://img.shields.io/npm/dm/@aspscript/core)](https://www.npmjs.com/package/@aspscript/core)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Build Status](https://img.shields.io/github/actions/workflow/status/aspscript/framework/ci.yml)](https://github.com/aspscript/framework/actions)
-[![Coverage](https://img.shields.io/codecov/c/github/aspscript/framework)](https://codecov.io/gh/aspscript/framework)
-[![Latest Release](https://img.shields.io/badge/release-v1.2.0-blue)](https://github.com/skaletun/aspscript/releases/tag/v1.2.0)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/aspscript/framework/ci.yml)](https://github.com/Skalettson/aspscript/actions)
+[![Latest Release](https://img.shields.io/badge/release-v1.3.0-blue)](https://github.com/Skalettson/aspscript/releases/tag/v1.3.0)
 
 > Revolutionary compile-time framework that transforms declarative descriptions into high-performance web applications without extra code.
+
+## 🎉 **AspScript v1.3.0 - "Advanced Compiler"**
+
+### 🔀 **Conditional Directives** ⭐ NEW!
+Natural syntax for conditional rendering!
+
+```aspc
+{#if isLoggedIn}
+  <div class="user-panel">
+    <h1>Welcome, {user.name}!</h1>
+  </div>
+{:else if isPending}
+  <div class="loading">Loading...</div>
+{:else}
+  <LoginForm />
+{/if}
+```
+
+### 🔄 **Optimized Loops** ⭐ NEW!
+Powerful directives for list rendering!
+
+```aspc
+{#for user in users :key="id"}
+  <UserCard :data="user" />
+{/for}
+
+{#each todos as (todo, index)}
+  <div>{index + 1}. {todo.text}</div>
+{/each}
+```
+
+### 🧩 **Advanced Components** ⭐ NEW!
+Props with validation, events, slots!
+
+```aspc
+export const props = {
+  title: { type: String, required: true },
+  count: { type: Number, default: 0 }
+}
+
+export const emits = ['click', 'update']
+```
+
+[📖 Learn more about v1.3.0](changelogs/CHANGELOG-v1.3.0.md) | [📋 v1.2.0](changelogs/CHANGELOG-v1.2.0.md)
+
+---
 
 ## 🎉 **AspScript v1.2.0 - "Framework Maturity"**
 
@@ -279,12 +326,24 @@ $: async fetchData() {
 }
 ```
 
-### 3. Smart Directives
+### 3. Smart Directives (v1.3.0 Enhanced!)
 ```aspc
-<div #if="condition"         <!-- Conditional rendering -->
-     #for="item in items"    <!-- Loops with keying -->
-     :class="{...}"          <!-- Reactive classes -->
-     @event="handler">       <!-- Event handlers -->
+<!-- Conditional rendering -->
+{#if condition}
+  <div>Content</div>
+{:else if other}
+  <div>Other</div>
+{:else}
+  <div>Fallback</div>
+{/if}
+
+<!-- Loops with keying -->
+{#for item in items :key="id"}
+  <Card :data="item" />
+{/for}
+
+<!-- Reactive classes and events -->
+<div :class="{active: isActive}" @click="handler">
 ```
 
 ### 4. Scoped Styles

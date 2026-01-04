@@ -1,21 +1,26 @@
 {
   "name": "@aspscript/universal",
-  "version": "0.8.0",
+  "version": "1.3.0",
   "description": "Universal components for AspScript (Web, Mobile, Desktop)",
   "main": "index.js",
   "scripts": {
     "build": "aspc build",
     "test": "jest"
   },
-  "keywords": ["aspscript", "universal", "cross-platform", "components"],
+  "keywords": [
+    "aspscript",
+    "universal",
+    "cross-platform",
+    "components"
+  ],
   "author": "Adel Petrov",
   "license": "MIT",
   "dependencies": {
-    "@aspscript/core": "workspace:*",
-    "@aspscript/react-native": "workspace:*"
+    "@aspscript/core": "file:../core",
+    "@aspscript/react-native": "file:../react-native",
+    "@aspscript/compiler": "file:../compiler"
   },
   "devDependencies": {
-    "@aspscript/compiler": "workspace:*",
     "jest": "^29.0.0"
   }
 }

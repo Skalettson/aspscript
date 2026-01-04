@@ -1,17 +1,22 @@
 {
-  "name": "@aspscript/error-boundary",
-  "version": "0.9.1",
+  "name": "@skaletunorg/error-boundary",
+  "version": "1.3.0",
   "description": "Universal error boundaries for AspScript",
   "main": "index.js",
   "scripts": {
     "build": "rollup -c",
     "test": "jest"
   },
-  "keywords": ["aspscript", "error-boundary", "error-handling", "universal"],
+  "keywords": [
+    "aspscript",
+    "error-boundary",
+    "error-handling",
+    "universal"
+  ],
   "author": "Adel Petrov",
   "license": "MIT",
   "dependencies": {
-    "@aspscript/core": "workspace:*"
+    "@skaletunorg/core": "file:../core"
   },
   "devDependencies": {
     "rollup": "^3.0.0",

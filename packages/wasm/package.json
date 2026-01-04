@@ -1,17 +1,22 @@
 {
-  "name": "@aspscript/wasm",
-  "version": "0.8.0",
+  "name": "@skaletunorg/wasm",
+  "version": "1.3.0",
   "description": "WebAssembly integration for AspScript",
   "main": "index.js",
   "scripts": {
     "build": "rollup -c",
     "test": "jest"
   },
-  "keywords": ["aspscript", "webassembly", "wasm", "performance"],
+  "keywords": [
+    "aspscript",
+    "webassembly",
+    "wasm",
+    "performance"
+  ],
   "author": "Adel Petrov",
   "license": "MIT",
   "dependencies": {
-    "@aspscript/core": "workspace:*"
+    "@skaletunorg/core": "file:../core"
   },
   "devDependencies": {
     "assemblyscript": "^0.27.0",
