@@ -479,8 +479,8 @@ v1.3.0 полностью совместима с v1.2.0. Весь сущест�
 
 ## 📞 **Поддержка**
 
-- 🐛 **Issues:** https://github.com/aspscript/framework/issues
-- 💬 **Discord:** https://discord.gg/aspscript
+- 🐛 **Issues:** https://github.com/Skalettson/aspscript/issues
+- 💬 **Discord:** https://discord.gg/skaletun
 - 📚 **Docs:** https://aspscript.dev
 - 🐦 **Twitter:** @aspscript
 
