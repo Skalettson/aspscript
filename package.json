@@ -1,0 +1,47 @@
+{
+  "name": "aspscript",
+  "version": "1.2.0",
+  "description": "AspScript: Пиши меньше, делай быстрее - революционный фреймворк для веб-разработки",
+  "main": "packages/core/index.js",
+  "bin": {
+    "aspscript": "./packages/cli/index.js"
+  },
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "test": "npm run test --workspaces",
+    "dev": "npm run dev --workspaces",
+    "docs": "cd aspscript-site && npm run dev",
+    "docs:build": "cd aspscript-site && npm run build",
+    "cli": "node packages/cli/index.js"
+  },
+  "workspaces": [
+    "packages/core",
+    "packages/compiler",
+    "packages/cli",
+    "packages/testing",
+    "packages/vite-plugin",
+    "packages/ecosystem/*"
+  ],
+  "keywords": [
+    "framework",
+    "web",
+    "javascript",
+    "reactive",
+    "compiler",
+    "webassembly",
+    "ssr",
+    "ssg",
+    "enterprise",
+    "cli",
+    "incremental-compilation"
+  ],
+  "author": "Adel Petrov",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Skalettson/aspscript.git"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
