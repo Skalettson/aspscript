@@ -1,0 +1,21 @@
+{
+  "name": "@aspscript/core",
+  "version": "1.2.0",
+  "description": "Core runtime and reactivity system for AspScript",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "build": "rollup -c",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "dev": "rollup -c -w"
+  },
+  "keywords": ["aspscript", "reactive", "framework"],
+  "author": "Apex Software",
+  "license": "MIT",
+  "devDependencies": {
+    "@rollup/plugin-node-resolve": "^15.3.0",
+    "rollup": "^4.24.0",
+    "jest": "^29.7.0"
+  }
+}

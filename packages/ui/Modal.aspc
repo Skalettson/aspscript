@@ -1,0 +1,282 @@
+---
+// AspScript UI Modal Component
+let props = $state({
+  isOpen: false,
+  title: '',
+  size: 'medium',
+  closable: true,
+  backdrop: true,
+  children: '',
+  onClose: null
+})
+
+// Вычисляемые классы
+$: modalClasses = [
+  'as-modal',
+  `as-modal--${props.size}`,
+  props.isOpen && 'as-modal--open'
+].filter(Boolean).join(' ')
+
+$: backdropClasses = [
+  'as-modal-backdrop',
+  props.backdrop && 'as-modal-backdrop--visible'
+].filter(Boolean).join(' ')
+
+// Обработчики
+function handleBackdropClick(event) {
+  if (event.target === event.currentTarget && props.closable) {
+    close()
+  }
+}
+
+function handleCloseClick() {
+  if (props.closable) {
+    close()
+  }
+}
+
+function handleKeyDown(event) {
+  if (event.key === 'Escape' && props.closable) {
+    close()
+  }
+}
+
+function close() {
+  props.isOpen = false
+  if (props.onClose) {
+    props.onClose()
+  }
+}
+
+// Эффект для фокуса
+$: effect(() => {
+  if (props.isOpen && isBrowser()) {
+    // Фокус на модальном окне при открытии
+    setTimeout(() => {
+      const modal = document.querySelector('.as-modal')
+      if (modal) {
+        modal.focus()
+      }
+    }, 100)
+  }
+})
+---
+
+<!-- Backdrop -->
+<div
+  #if="props.isOpen"
+  class="{backdropClasses}"
+  @click="handleBackdropClick"
+  @keydown="handleKeyDown"
+  tabindex="-1"
+>
+  <!-- Modal -->
+  <div
+    class="{modalClasses}"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="modal-title"
+    tabindex="-1"
+  >
+    <!-- Header -->
+    <div #if="props.title || props.closable" class="as-modal-header">
+      <h2 #if="props.title" id="modal-title" class="as-modal-title">
+        {props.title}
+      </h2>
+
+      <button
+        #if="props.closable"
+        type="button"
+        class="as-modal-close"
+        aria-label="Close modal"
+        @click="handleCloseClick"
+      >
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div class="as-modal-body">
+      {props.children}
+    </div>
+  </div>
+</div>
+
+<style>
+.as-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.as-modal-backdrop--visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.as-modal {
+  background: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  max-height: 90vh;
+  max-width: 90vw;
+  overflow: hidden;
+  transform: scale(0.95);
+  transition: transform 0.3s ease;
+  outline: none;
+}
+
+.as-modal--open {
+  transform: scale(1);
+}
+
+/* Sizes */
+.as-modal--small {
+  width: 20rem;
+}
+
+.as-modal--medium {
+  width: 28rem;
+}
+
+.as-modal--large {
+  width: 40rem;
+}
+
+.as-modal--full {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  border-radius: 0;
+}
+
+/* Header */
+.as-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.as-modal-title {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.as-modal-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border: none;
+  border-radius: 0.375rem;
+  background: transparent;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.as-modal-close:hover {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+.as-modal-close:focus {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px #3b82f6;
+}
+
+/* Body */
+.as-modal-body {
+  padding: 1.5rem;
+  overflow-y: auto;
+  max-height: calc(90vh - 8rem);
+}
+
+/* Animations */
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modalSlideIn {
+  from {
+    transform: scale(0.95) translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+.as-modal--open {
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+.as-modal-backdrop--visible {
+  animation: modalFadeIn 0.3s ease-out;
+}
+
+/* Mobile responsive */
+@media (max-width: 640px) {
+  .as-modal {
+    margin: 1rem;
+    max-height: calc(100vh - 2rem);
+  }
+
+  .as-modal--small,
+  .as-modal--medium,
+  .as-modal--large {
+    width: 100%;
+  }
+}
+
+/* Dark theme support */
+@media (prefers-color-scheme: dark) {
+  .as-modal {
+    background: #1f2937;
+    color: #f3f4f6;
+  }
+
+  .as-modal-header {
+    border-bottom-color: #374151;
+  }
+
+  .as-modal-title {
+    color: #f3f4f6;
+  }
+
+  .as-modal-close {
+    color: #9ca3af;
+  }
+
+  .as-modal-close:hover {
+    background-color: #374151;
+    color: #f3f4f6;
+  }
+}
+</style>

@@ -1,0 +1,11 @@
+{
+  "name": "@aspscript/animations",
+  "version": "1.2.0",
+  "description": "AspScript Animation Library",
+  "main": "index.js",
+  "type": "module",
+  "keywords": ["aspscript", "animations", "transitions"],
+  "author": "Apex Software",
+  "license": "MIT"
+}
+

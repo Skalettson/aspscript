@@ -1,0 +1,11 @@
+{
+  "name": "@aspscript/theme",
+  "version": "1.2.0",
+  "description": "AspScript Theme Engine and Design System",
+  "main": "index.js",
+  "type": "module",
+  "keywords": ["aspscript", "theme", "design-system"],
+  "author": "Apex Software",
+  "license": "MIT"
+}
+

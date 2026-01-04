@@ -1,0 +1,28 @@
+{
+  "name": "@aspscript/react-native",
+  "version": "0.8.0",
+  "description": "React Native integration for AspScript",
+  "main": "index.js",
+  "scripts": {
+    "build": "rollup -c",
+    "test": "jest"
+  },
+  "keywords": ["aspscript", "react-native", "mobile", "ios", "android"],
+  "author": "Apex Software",
+  "license": "MIT",
+  "dependencies": {
+    "@aspscript/core": "workspace:*",
+    "react": ">=16.8.0",
+    "react-native": ">=0.60.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.0",
+    "@types/react-native": "^0.70.0",
+    "rollup": "^3.0.0",
+    "jest": "^29.0.0"
+  },
+  "peerDependencies": {
+    "react": ">=16.8.0",
+    "react-native": ">=0.60.0"
+  }
+}

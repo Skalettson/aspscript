@@ -1,0 +1,460 @@
+---
+interface Todo {
+  id: number
+  text: string
+  completed: boolean
+  priority: 'low' | 'medium' | 'high'
+}
+
+let todos: Todo[] = $state([
+  { id: 1, text: 'Learn AspScript', completed: true, priority: 'high' },
+  { id: 2, text: 'Build awesome app', completed: false, priority: 'medium' },
+  { id: 3, text: 'Deploy to production', completed: false, priority: 'low' }
+])
+
+let newTodoText = $state('')
+let filter = $state('all')
+
+$: completedCount = todos.filter(t => t.completed).length
+$: totalCount = todos.length
+$: filteredTodos = () => {
+  switch (filter) {
+    case 'active': return todos.filter(t => !t.completed)
+    case 'completed': return todos.filter(t => t.completed)
+    default: return todos
+  }
+}
+
+function addTodo() {
+  if (newTodoText.trim()) {
+    todos.push({
+      id: Date.now(),
+      text: newTodoText.trim(),
+      completed: false,
+      priority: 'medium'
+    })
+    newTodoText = ''
+  }
+}
+
+function toggleTodo(id: number) {
+  const todo = todos.find(t => t.id === id)
+  if (todo) {
+    todo.completed = !todo.completed
+  }
+}
+
+function removeTodo(id: number) {
+  todos = todos.filter(t => t.id !== id)
+}
+
+function clearCompleted() {
+  todos = todos.filter(t => !t.completed)
+}
+---
+
+<div class="todo-app">
+  <header class="header">
+    <h1>My Tasks</h1>
+    <div class="stats">
+      <span class="completed">{completedCount}</span> of <span class="total">{totalCount}</span> completed
+    </div>
+  </header>
+
+  <div class="add-todo">
+    <input
+      type="text"
+      bind:value="newTodoText"
+      placeholder="What needs to be done?"
+      @keydown.enter="addTodo()"
+      class="todo-input"
+    >
+    <button @click="addTodo()" class="add-btn">Add Task</button>
+  </div>
+
+  <div class="filters">
+    <button
+      class="filter-btn {filter === 'all' ? 'active' : ''}"
+      @click="filter = 'all'"
+    >
+      All ({totalCount})
+    </button>
+    <button
+      class="filter-btn {filter === 'active' ? 'active' : ''}"
+      @click="filter = 'active'"
+    >
+      Active ({totalCount - completedCount})
+    </button>
+    <button
+      class="filter-btn {filter === 'completed' ? 'active' : ''}"
+      @click="filter = 'completed'"
+    >
+      Completed ({completedCount})
+    </button>
+  </div>
+
+  <ul class="todo-list">
+    {#for todo in filteredTodos()}
+      <li class="todo-item {todo.completed ? 'completed' : ''} priority-{todo.priority}">
+        <div class="todo-content">
+          <input
+            type="checkbox"
+            checked="todo.completed"
+            @change="toggleTodo(todo.id)"
+            class="todo-checkbox"
+          >
+          <span class="todo-text">{todo.text}</span>
+          <span class="priority-badge {todo.priority}">{todo.priority}</span>
+        </div>
+        <button @click="removeTodo(todo.id)" class="delete-btn" title="Delete task">
+          ×
+        </button>
+      </li>
+    {/for}
+  </ul>
+
+  {#if completedCount > 0}
+    <div class="clear-completed">
+      <button @click="clearCompleted()" class="clear-btn">
+        Clear completed ({completedCount})
+      </button>
+    </div>
+  {/if}
+</div>
+
+<style lang="scss">
+// SCSS Variables and Mixins
+$app-bg: #f8fafc;
+$card-bg: #ffffff;
+$text-primary: #1a202c;
+$text-secondary: #718096;
+$border: #e2e8f0;
+$primary: #667eea;
+$success: #48bb78;
+$warning: #ed8936;
+$error: #f56565;
+
+$shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+$shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+$shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.15);
+
+$radius: 8px;
+$radius-sm: 4px;
+
+// Mixins
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin button-variant($color, $hover-color: darken($color, 10%)) {
+  background: linear-gradient(135deg, $color, $hover-color);
+  color: white;
+  border: none;
+  border-radius: $radius-sm;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: $shadow;
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.todo-app {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 2rem;
+  background: $app-bg;
+  min-height: 100vh;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 2rem;
+
+  h1 {
+    color: $text-primary;
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .stats {
+    color: $text-secondary;
+    font-size: 0.9rem;
+
+    .completed {
+      color: $success;
+      font-weight: 600;
+    }
+
+    .total {
+      font-weight: 600;
+    }
+  }
+}
+
+.add-todo {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+
+  .todo-input {
+    flex: 1;
+    padding: 1rem;
+    border: 2px solid $border;
+    border-radius: $radius;
+    font-size: 1rem;
+    transition: border-color 0.2s ease;
+
+    &:focus {
+      outline: none;
+      border-color: $primary;
+      box-shadow: 0 0 0 3px rgba($primary, 0.1);
+    }
+  }
+
+  .add-btn {
+    @include button-variant($primary);
+    padding: 1rem 1.5rem;
+    font-weight: 600;
+  }
+}
+
+.filters {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  background: $card-bg;
+  padding: 0.5rem;
+  border-radius: $radius;
+  box-shadow: $shadow-sm;
+
+  .filter-btn {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    background: transparent;
+    border: none;
+    border-radius: $radius-sm;
+    color: $text-secondary;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &.active {
+      background: $primary;
+      color: white;
+      box-shadow: $shadow-sm;
+    }
+
+    &:hover:not(.active) {
+      background: rgba($primary, 0.1);
+      color: $primary;
+    }
+  }
+}
+
+.todo-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+
+  .todo-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    background: $card-bg;
+    border-radius: $radius;
+    margin-bottom: 0.5rem;
+    box-shadow: $shadow-sm;
+    transition: all 0.2s ease;
+    border: 2px solid transparent;
+
+    &:hover {
+      box-shadow: $shadow;
+      border-color: rgba($primary, 0.2);
+    }
+
+    &.completed {
+      opacity: 0.7;
+
+      .todo-text {
+        text-decoration: line-through;
+        color: $text-secondary;
+      }
+    }
+
+    // Priority-based styling
+    &.priority-high {
+      border-left: 4px solid $error;
+    }
+
+    &.priority-medium {
+      border-left: 4px solid $warning;
+    }
+
+    &.priority-low {
+      border-left: 4px solid $success;
+    }
+  }
+
+  .todo-content {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .todo-checkbox {
+    width: 20px;
+    height: 20px;
+    accent-color: $primary;
+  }
+
+  .todo-text {
+    flex: 1;
+    color: $text-primary;
+    font-size: 1rem;
+  }
+
+  .priority-badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: $radius-sm;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+
+    &.high {
+      background: rgba($error, 0.1);
+      color: $error;
+    }
+
+    &.medium {
+      background: rgba($warning, 0.1);
+      color: $warning;
+    }
+
+    &.low {
+      background: rgba($success, 0.1);
+      color: $success;
+    }
+  }
+
+  .delete-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: rgba($error, 0.1);
+    color: $error;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    transition: all 0.2s ease;
+    opacity: 0;
+
+    .todo-item:hover & {
+      opacity: 1;
+    }
+
+    &:hover {
+      background: $error;
+      color: white;
+      transform: scale(1.1);
+    }
+  }
+}
+
+.clear-completed {
+  text-align: center;
+  margin-top: 2rem;
+
+  .clear-btn {
+    @include button-variant($error, darken($error, 10%));
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9rem;
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .todo-app {
+    padding: 1rem;
+  }
+
+  .header h1 {
+    font-size: 2rem;
+  }
+
+  .add-todo {
+    flex-direction: column;
+
+    .add-btn {
+      width: 100%;
+    }
+  }
+
+  .filters {
+    flex-direction: column;
+  }
+
+  .todo-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+
+    .delete-btn {
+      opacity: 1;
+      align-self: flex-end;
+    }
+  }
+}
+
+// Dark theme support
+@media (prefers-color-scheme: dark) {
+  $app-bg: #1a202c;
+  $card-bg: #2d3748;
+  $text-primary: #f7fafc;
+  $text-secondary: #a0aec0;
+  $border: #4a5568;
+
+  .todo-app {
+    background: $app-bg;
+  }
+
+  .header h1 {
+    color: $text-primary;
+  }
+
+  .stats {
+    color: $text-secondary;
+  }
+
+  .todo-input {
+    background: $card-bg;
+    border-color: $border;
+    color: $text-primary;
+
+    &::placeholder {
+      color: $text-secondary;
+    }
+  }
+
+  .filters,
+  .todo-item {
+    background: $card-bg;
+  }
+
+  .todo-text {
+    color: $text-primary;
+  }
+}
+</style>

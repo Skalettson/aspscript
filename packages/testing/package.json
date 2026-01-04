@@ -1,0 +1,27 @@
+{
+  "name": "@aspscript/testing",
+  "version": "0.9.5",
+  "description": "Testing utilities for AspScript",
+  "main": "index.js",
+  "scripts": {
+    "build": "rollup -c",
+    "test": "jest"
+  },
+  "keywords": ["aspscript", "testing", "unit-tests", "component-tests", "e2e"],
+  "author": "Apex Software",
+  "license": "MIT",
+  "dependencies": {
+    "@aspscript/core": "workspace:*",
+    "jest-environment-jsdom": "^29.7.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.12",
+    "rollup": "^4.24.0",
+    "jest": "^29.7.0",
+    "puppeteer": "^23.0.2",
+    "playwright": "^1.48.0"
+  },
+  "peerDependencies": {
+    "jest": ">=29.0.0"
+  }
+}

@@ -1,0 +1,174 @@
+---
+// AspScript UI Button Component
+let props = $state({
+  variant: 'primary',
+  size: 'medium',
+  disabled: false,
+  loading: false,
+  children: 'Button'
+})
+
+// Вычисляемые классы
+$: buttonClasses = [
+  'as-button',
+  `as-button--${props.variant}`,
+  `as-button--${props.size}`,
+  props.disabled && 'as-button--disabled',
+  props.loading && 'as-button--loading'
+].filter(Boolean).join(' ')
+
+// Обработчик клика
+function handleClick(event) {
+  if (props.disabled || props.loading) {
+    event.preventDefault()
+    return
+  }
+
+  // Вызываем onClick если передан
+  if (props.onClick) {
+    props.onClick(event)
+  }
+}
+---
+
+<button
+  class="{buttonClasses}"
+  :disabled="props.disabled || props.loading"
+  @click="handleClick"
+>
+  <!-- Loading spinner -->
+  <span #if="props.loading" class="as-button__spinner">
+    <svg width="16" height="16" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" stroke-dasharray="31.416" stroke-dashoffset="31.416">
+        <animate attributeName="stroke-dashoffset" values="31.416;0" dur="1s" repeatCount="indefinite"/>
+      </circle>
+    </svg>
+  </span>
+
+  <!-- Button content -->
+  <span class="as-button__content">
+    {props.children}
+  </span>
+</button>
+
+<style>
+.as-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.25rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.as-button:focus {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+}
+
+/* Variants */
+.as-button--primary {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.as-button--primary:hover:not(.as-button--disabled) {
+  background-color: #2563eb;
+}
+
+.as-button--secondary {
+  background-color: white;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.as-button--secondary:hover:not(.as-button--disabled) {
+  background-color: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.as-button--danger {
+  background-color: #dc2626;
+  color: white;
+}
+
+.as-button--danger:hover:not(.as-button--disabled) {
+  background-color: #b91c1c;
+}
+
+/* Sizes */
+.as-button--small {
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+}
+
+.as-button--large {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+}
+
+/* States */
+.as-button--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.as-button--loading {
+  cursor: wait;
+}
+
+.as-button__spinner {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.as-button__content {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+</style>
+
+<script>
+// Экспортируем компонент с пропсами
+export default function Button(initialProps = {}) {
+  props = { ...props, ...initialProps }
+  return {
+    render: () => `
+      <button class="${buttonClasses}" ${props.disabled || props.loading ? 'disabled' : ''}>
+        ${props.loading ? '<span class="as-button__spinner"><svg width="16" height="16" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle></svg></span>' : ''}
+        <span class="as-button__content">${props.children}</span>
+      </button>
+    `,
+    styles: `
+      .as-button { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.5rem 1rem; border: none; border-radius: 0.375rem; font-size: 0.875rem; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+      .as-button--primary { background: #3b82f6; color: white; }
+      .as-button--primary:hover:not(.as-button--disabled) { background: #2563eb; }
+      .as-button--secondary { background: white; color: #374151; border: 1px solid #d1d5db; }
+      .as-button--secondary:hover:not(.as-button--disabled) { background: #f9fafb; }
+      .as-button--disabled { opacity: 0.5; cursor: not-allowed; }
+    `
+  }
+}
+</script>

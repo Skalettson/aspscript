@@ -1,0 +1,320 @@
+---
+// AspScript Universal Button Component
+// Работает в веб, React Native и Electron
+
+import { isBrowser, isSSR } from '@aspscript/core'
+
+let props = $state({
+  children: 'Button',
+  variant: 'primary',
+  size: 'medium',
+  disabled: false,
+  loading: false,
+  onClick: null,
+  onPress: null // Для React Native совместимости
+})
+
+// Определяем платформу
+$: platform = isSSR() ? 'ssr' :
+              typeof navigator !== 'undefined' && navigator.product === 'ReactNative' ? 'react-native' :
+              typeof window !== 'undefined' && window.electronAPI ? 'electron' :
+              'web'
+
+// Универсальные стили в зависимости от платформы
+$: styles = getPlatformStyles(platform, props)
+
+// Обработчик нажатия (универсальный)
+function handlePress(event) {
+  if (props.disabled || props.loading) return
+
+  // Вызываем соответствующий обработчик
+  const handler = props.onClick || props.onPress
+  if (handler) {
+    handler(event)
+  }
+}
+---
+
+<!-- Условный рендеринг в зависимости от платформы -->
+<div #if="platform === 'web'">
+  <button
+    class="universal-button {props.variant} {props.size} {props.disabled ? 'disabled' : ''} {props.loading ? 'loading' : ''}"
+    :disabled="props.disabled || props.loading"
+    @click="handlePress"
+  >
+    <!-- Loading индикатор -->
+    <span #if="props.loading" class="loading-spinner">⟳</span>
+
+    <!-- Контент кнопки -->
+    <span class="button-content">{props.children}</span>
+  </button>
+</div>
+
+<!-- React Native версия -->
+<view #if="platform === 'react-native'">
+  <TouchableOpacity
+    style="getTouchableStyle(props)"
+    :disabled="props.disabled || props.loading"
+    onPress="handlePress"
+  >
+    <!-- Loading индикатор для RN -->
+    <ActivityIndicator #if="props.loading" animating="true" size="small" />
+
+    <!-- Контент кнопки -->
+    <Text style="getTextStyle(props)">{props.children}</Text>
+  </TouchableOpacity>
+</view>
+
+<!-- Electron/Desktop версия -->
+<div #if="platform === 'electron'">
+  <button
+    class="electron-button {props.variant}"
+    :disabled="props.disabled || props.loading"
+    @click="handlePress"
+  >
+    <span #if="props.loading" class="electron-spinner">⟳</span>
+    {props.children}
+  </button>
+</div>
+
+<style>
+/* Web стили */
+.universal-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: none;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.universal-button.primary {
+  background: #3b82f6;
+  color: white;
+}
+
+.universal-button.primary:hover:not(.disabled) {
+  background: #2563eb;
+}
+
+.universal-button.secondary {
+  background: white;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.universal-button.secondary:hover:not(.disabled) {
+  background: #f9fafb;
+}
+
+.universal-button.small {
+  padding: 0.25rem 0.75rem;
+  font-size: 0.875rem;
+}
+
+.universal-button.medium {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+}
+
+.universal-button.large {
+  padding: 0.75rem 1.5rem;
+  font-size: 1.125rem;
+}
+
+.universal-button.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.universal-button.loading {
+  cursor: wait;
+}
+
+.loading-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Electron/Desktop стили */
+.electron-button {
+  padding: 8px 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #f0f0f0;
+  font-family: system-ui;
+}
+
+.electron-button.primary {
+  background: #007acc;
+  color: white;
+  border-color: #007acc;
+}
+
+.electron-spinner {
+  display: inline-block;
+  animation: spin 1s linear infinite;
+}
+
+/* Темная тема */
+@media (prefers-color-scheme: dark) {
+  .universal-button.secondary {
+    background: #1f2937;
+    color: #f3f4f6;
+    border-color: #374151;
+  }
+
+  .electron-button {
+    background: #2d3748;
+    color: #e2e8f0;
+    border-color: #4a5568;
+  }
+}
+
+/* Адаптивность */
+@media (max-width: 640px) {
+  .universal-button {
+    font-size: 0.875rem;
+    padding: 0.5rem 1rem;
+  }
+}
+</style>
+
+<script>
+// Вспомогательные функции для разных платформ
+function getPlatformStyles(platform, props) {
+  switch (platform) {
+    case 'web':
+      return getWebStyles(props)
+    case 'react-native':
+      return getReactNativeStyles(props)
+    case 'electron':
+      return getElectronStyles(props)
+    default:
+      return getWebStyles(props)
+  }
+}
+
+function getWebStyles(props) {
+  return {
+    base: {
+      display: 'inline-flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: '0.5rem',
+      border: 'none',
+      borderRadius: '0.375rem',
+      fontWeight: '500',
+      cursor: props.disabled || props.loading ? 'not-allowed' : 'pointer',
+      opacity: props.disabled ? 0.5 : 1
+    },
+    primary: {
+      backgroundColor: '#3b82f6',
+      color: 'white'
+    },
+    secondary: {
+      backgroundColor: 'white',
+      color: '#374151',
+      border: '1px solid #d1d5db'
+    }
+  }
+}
+
+function getReactNativeStyles(props) {
+  // Для React Native возвращаем объекты стилей
+  return {
+    container: {
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+      borderRadius: 6,
+      alignItems: 'center',
+      justifyContent: 'center',
+      opacity: props.disabled ? 0.5 : 1
+    },
+    text: {
+      fontSize: 16,
+      fontWeight: '500'
+    }
+  }
+}
+
+function getElectronStyles(props) {
+  return {
+    button: {
+      padding: '8px 16px',
+      border: '1px solid #ccc',
+      borderRadius: '4px',
+      backgroundColor: props.variant === 'primary' ? '#007acc' : '#f0f0f0',
+      color: props.variant === 'primary' ? 'white' : '#333'
+    }
+  }
+}
+
+// Экспорт универсального компонента
+export default function UniversalButton(initialProps = {}) {
+  props = { ...props, ...initialProps }
+
+  return {
+    render: () => {
+      // В зависимости от платформы возвращаем соответствующий рендер
+      switch (platform) {
+        case 'web':
+          return `
+            <button class="universal-button ${props.variant} ${props.size} ${props.disabled ? 'disabled' : ''} ${props.loading ? 'loading' : ''}"
+                    ${props.disabled || props.loading ? 'disabled' : ''}
+                    onclick="handlePress(event)">
+              ${props.loading ? '<span class="loading-spinner">⟳</span>' : ''}
+              <span class="button-content">${props.children}</span>
+            </button>
+          `
+
+        case 'react-native':
+          return {
+            type: 'TouchableOpacity',
+            props: {
+              style: getReactNativeStyles(props).container,
+              disabled: props.disabled || props.loading,
+              onPress: handlePress
+            },
+            children: [
+              props.loading ? {
+                type: 'ActivityIndicator',
+                props: { animating: true, size: 'small' }
+              } : null,
+              {
+                type: 'Text',
+                props: {
+                  style: getReactNativeStyles(props).text
+                },
+                children: props.children
+              }
+            ].filter(Boolean)
+          }
+
+        case 'electron':
+          return `
+            <button class="electron-button ${props.variant}"
+                    ${props.disabled || props.loading ? 'disabled' : ''}
+                    onclick="handlePress(event)">
+              ${props.loading ? '<span class="electron-spinner">⟳</span>' : ''}
+              ${props.children}
+            </button>
+          `
+
+        default:
+          return `<button>${props.children}</button>`
+      }
+    },
+
+    styles: getPlatformStyles(platform, props)
+  }
+}
+</script>

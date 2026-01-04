@@ -1,0 +1,20 @@
+{
+  "name": "@aspscript/ui",
+  "version": "0.6.0",
+  "description": "AspScript UI Component Library",
+  "main": "index.js",
+  "scripts": {
+    "build": "aspc build",
+    "test": "jest"
+  },
+  "keywords": ["aspscript", "ui", "components"],
+  "author": "Apex Software",
+  "license": "MIT",
+  "dependencies": {
+    "@aspscript/core": "file:../core"
+  },
+  "devDependencies": {
+    "@aspscript/compiler": "file:../compiler",
+    "jest": "^29.0.0"
+  }
+}

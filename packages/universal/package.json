@@ -1,0 +1,21 @@
+{
+  "name": "@aspscript/universal",
+  "version": "0.8.0",
+  "description": "Universal components for AspScript (Web, Mobile, Desktop)",
+  "main": "index.js",
+  "scripts": {
+    "build": "aspc build",
+    "test": "jest"
+  },
+  "keywords": ["aspscript", "universal", "cross-platform", "components"],
+  "author": "Apex Software",
+  "license": "MIT",
+  "dependencies": {
+    "@aspscript/core": "workspace:*",
+    "@aspscript/react-native": "workspace:*"
+  },
+  "devDependencies": {
+    "@aspscript/compiler": "workspace:*",
+    "jest": "^29.0.0"
+  }
+}

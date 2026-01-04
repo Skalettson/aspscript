@@ -1,0 +1,223 @@
+---
+// AspScript UI Input Component
+let props = $state({
+  type: 'text',
+  placeholder: '',
+  value: '',
+  disabled: false,
+  readonly: false,
+  required: false,
+  error: '',
+  label: '',
+  size: 'medium'
+})
+
+// Локальное состояние
+let isFocused = $state(false)
+let hasValue = $state(!!props.value)
+
+// Вычисляемые классы
+$: inputClasses = [
+  'as-input',
+  `as-input--${props.size}`,
+  isFocused && 'as-input--focused',
+  props.disabled && 'as-input--disabled',
+  props.readonly && 'as-input--readonly',
+  props.error && 'as-input--error',
+  hasValue && 'as-input--has-value'
+].filter(Boolean).join(' ')
+
+$: wrapperClasses = [
+  'as-input-wrapper',
+  props.label && 'as-input-wrapper--labeled'
+].filter(Boolean).join(' ')
+
+// Обработчики событий
+function handleInput(event) {
+  props.value = event.target.value
+  hasValue = !!props.value
+
+  if (props.onInput) {
+    props.onInput(event)
+  }
+}
+
+function handleFocus(event) {
+  isFocused = true
+
+  if (props.onFocus) {
+    props.onFocus(event)
+  }
+}
+
+function handleBlur(event) {
+  isFocused = false
+
+  if (props.onBlur) {
+    props.onBlur(event)
+  }
+}
+
+function handleChange(event) {
+  if (props.onChange) {
+    props.onChange(event)
+  }
+}
+---
+
+<div class="{wrapperClasses}">
+  <!-- Label -->
+  <label #if="props.label" class="as-input-label" :for="'input-' + Date.now()">
+    {props.label}
+    <span #if="props.required" class="as-input-required">*</span>
+  </label>
+
+  <!-- Input wrapper -->
+  <div class="as-input-container">
+    <input
+      id="input-{Date.now()}"
+      type="{props.type}"
+      class="{inputClasses}"
+      placeholder="{props.placeholder}"
+      value="{props.value}"
+      :disabled="props.disabled"
+      :readonly="props.readonly"
+      :required="props.required"
+      @input="handleInput"
+      @focus="handleFocus"
+      @blur="handleBlur"
+      @change="handleChange"
+    />
+
+    <!-- Error message -->
+    <div #if="props.error" class="as-input-error">
+      {props.error}
+    </div>
+  </div>
+</div>
+
+<style>
+.as-input-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.as-input-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.as-input-required {
+  color: #dc2626;
+}
+
+.as-input-container {
+  position: relative;
+}
+
+.as-input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: #374151;
+  background-color: white;
+  transition: all 0.2s ease;
+}
+
+.as-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.as-input::placeholder {
+  color: #9ca3af;
+}
+
+/* Sizes */
+.as-input--small {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+}
+
+.as-input--large {
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+}
+
+/* States */
+.as-input--focused {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.as-input--disabled {
+  background-color: #f3f4f6;
+  color: #9ca3af;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.as-input--readonly {
+  background-color: #f9fafb;
+  cursor: default;
+}
+
+.as-input--error {
+  border-color: #dc2626;
+}
+
+.as-input--error:focus {
+  border-color: #dc2626;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+}
+
+/* Error message */
+.as-input-error {
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  color: #dc2626;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.as-input-error::before {
+  content: '⚠';
+  font-size: 0.875rem;
+}
+
+/* Dark theme support */
+@media (prefers-color-scheme: dark) {
+  .as-input-label {
+    color: #f3f4f6;
+  }
+
+  .as-input {
+    background-color: #1f2937;
+    border-color: #374151;
+    color: #f3f4f6;
+  }
+
+  .as-input::placeholder {
+    color: #6b7280;
+  }
+
+  .as-input--disabled {
+    background-color: #111827;
+    color: #6b7280;
+  }
+
+  .as-input--readonly {
+    background-color: #111827;
+  }
+}
+</style>

@@ -1,0 +1,20 @@
+{
+  "name": "@aspscript/i18n",
+  "version": "0.9.4",
+  "description": "Internationalization support for AspScript",
+  "main": "index.js",
+  "scripts": {
+    "build": "rollup -c",
+    "test": "jest"
+  },
+  "keywords": ["aspscript", "i18n", "internationalization", "localization", "rtl"],
+  "author": "Apex Software",
+  "license": "MIT",
+  "dependencies": {
+    "@aspscript/core": "workspace:*"
+  },
+  "devDependencies": {
+    "rollup": "^3.0.0",
+    "jest": "^29.0.0"
+  }
+}

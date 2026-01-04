@@ -1,0 +1,108 @@
+---
+// Простой счетчик с реактивностью
+let count = $state(0)
+let step = $state(1)
+
+// Вычисляемые значения
+$: doubled = count * 2
+$: isEven = count % 2 === 0
+
+// Эффект при изменении счетчика
+$: effect(() => {
+  console.log(`Счетчик: ${count}, Удвоенное: ${doubled}`)
+})
+---
+
+<div class="counter">
+  <h2>Счетчик</h2>
+
+  <div class="display">
+    <span class="number">{count}</span>
+    <span class="label">({isEven ? 'четное' : 'нечетное'})</span>
+  </div>
+
+  <div class="controls">
+    <button @click="count -= step" :disabled="count <= 0">-</button>
+    <span class="step">Шаг: {step}</span>
+    <button @click="count += step">+</button>
+  </div>
+
+  <div class="step-controls">
+    <label>Шаг:</label>
+    <input type="range" min="1" max="10" #bind="step">
+    <span>{step}</span>
+  </div>
+
+  <p>Удвоенное значение: <strong>{doubled}</strong></p>
+</div>
+
+<style>
+.counter {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 2rem;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+}
+
+.display {
+  margin: 2rem 0;
+}
+
+.number {
+  font-size: 4rem;
+  font-weight: bold;
+  display: block;
+}
+
+.label {
+  font-size: 1.2rem;
+  opacity: 0.8;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
+button {
+  background: rgba(255,255,255,0.2);
+  border: 2px solid white;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+button:hover:not(:disabled) {
+  background: rgba(255,255,255,0.3);
+  transform: scale(1.05);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.step {
+  font-size: 1.2rem;
+  min-width: 80px;
+}
+
+.step-controls {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255,255,255,0.3);
+}
+
+input[type="range"] {
+  width: 200px;
+  margin: 0 1rem;
+}
+</style>
